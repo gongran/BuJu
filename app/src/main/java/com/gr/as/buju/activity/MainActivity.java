@@ -1,10 +1,13 @@
 package com.gr.as.buju.activity;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -14,14 +17,25 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.BaseAdapter;
+import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.gr.as.buju.R;
+import com.gr.as.buju.entity.NewsBean;
+import com.gr.as.buju.utils.NewsUtils;
+
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
-
+    private ListView lv;
+    private ArrayList<NewsBean> mList;
     private TextView mTextMessage;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,6 +63,10 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+        initUI();
+        initData();
+        initAdapter();
+
     }
 
     @Override
@@ -107,6 +125,7 @@ public class MainActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
 
@@ -126,4 +145,73 @@ public class MainActivity extends AppCompatActivity
             return false;
         }
     };
+
+    private void initAdapter() {
+        lv.setAdapter(new NewsAdapter());
+    }
+
+    private void initData() {
+        mList = NewsUtils.getAllNews(this);
+    }
+
+    private void initUI() {
+        lv = (ListView) findViewById(R.id.lv);
+
+        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent intent = new Intent();
+                intent.setAction(Intent.ACTION_VIEW);
+                intent.setData(Uri.parse(mList.get(position).news_url));
+                startActivity(intent);
+            }
+        });
+    }
+
+    private class NewsAdapter extends BaseAdapter {
+
+        @Override
+        public int getCount() {
+            return mList.size();
+        }
+
+        @Override
+        public NewsBean getItem(int position) {
+            return mList.get(position);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            ViewHolder holder;
+            if (convertView == null) {
+                holder = new ViewHolder();
+                convertView = View.inflate(getApplicationContext(), R.layout.listview_item, null);
+                holder.tv_title = (TextView) convertView.findViewById(R.id.tv_title);
+                holder.tv_des = (TextView) convertView.findViewById(R.id.tv_des);
+                holder.iv_icon = (ImageView) convertView.findViewById(R.id.iv_icon);
+                convertView.setTag(holder);
+            } else {
+                holder = (ViewHolder) convertView.getTag();
+            }
+            NewsBean item = getItem(position);
+            holder.tv_title.setText(item.title);
+            holder.tv_des.setText(item.des);
+            holder.iv_icon.setImageDrawable(item.icon);
+            return convertView;
+        }
+    }
+
+    private static class ViewHolder {
+        TextView tv_title;
+        TextView tv_des;
+        ImageView iv_icon;
+
+    }
+
+
 }

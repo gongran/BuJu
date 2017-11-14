@@ -19,13 +19,12 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <include
-        layout="@layout/listview_item"
+    <ListView
+        android:id="@+id/lv"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:layout_editor_absoluteX="0dp"
-        tools:layout_editor_absoluteY="0dp"
-        tools:ignore="MissingConstraints" />
+        android:layout_height="wrap_content"
+        android:layout_below="@id/message2" />
+
     <android.support.design.widget.BottomNavigationView
         android:id="@+id/navigation2"
         android:layout_width="0dp"
